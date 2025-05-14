@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react';
 const BULLET_SPEED = 8;
 
 const Bullet = ({ initialPosition, onDestroy }) => {
-  const [position, setPosition] = useState(initialPosition);
+  const [position, setPosition] = useState({
+    x: initialPosition.x,
+    y: initialPosition.y
+  });
 
   useEffect(() => {
-    let animationId;
-    
+    let frameId;
     const animate = () => {
       setPosition(prev => {
         const newY = prev.y - BULLET_SPEED;
@@ -15,13 +17,13 @@ const Bullet = ({ initialPosition, onDestroy }) => {
           onDestroy();
           return prev;
         }
-        return { ...prev, y: newY };
+        return { x: prev.x, y: newY };
       });
-      animationId = requestAnimationFrame(animate);
+      frameId = requestAnimationFrame(animate);
     };
 
-    animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
   }, [onDestroy]);
 
   return (
@@ -35,7 +37,9 @@ const Bullet = ({ initialPosition, onDestroy }) => {
         height: '12px',
         backgroundColor: '#fff',
         boxShadow: '0 0 4px #fff, 0 0 8px #0f0',
-        transform: 'translateZ(0)',
+        zIndex: 1000,
+        transform: 'translate3d(0,0,0)',
+        backfaceVisibility: 'hidden'
       }}
     />
   );

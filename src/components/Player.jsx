@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 const PLAYER_SETTINGS = {
   SPEED: 5,
   WIDTH: 50,
-  INITIAL_Y: window.innerHeight - 120
+  INITIAL_Y: window.innerHeight - 120,
+  CANNON_OFFSET: 23 // Center of ship
 };
 
 const Player = ({ onShoot }) => {
@@ -17,7 +18,13 @@ const Player = ({ onShoot }) => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowLeft') setMovement(prev => ({ ...prev, left: true }));
       if (e.key === 'ArrowRight') setMovement(prev => ({ ...prev, right: true }));
-      if (e.code === 'Space') onShoot(position);
+      if (e.code === 'Space') {
+        const bulletSpawnPos = {
+          x: position.x + (PLAYER_SETTINGS.WIDTH / 2) - 2, // Center bullet
+          y: window.innerHeight - 200 // Adjust spawn height
+        };
+        onShoot(bulletSpawnPos);
+      }
     };
 
     const handleKeyUp = (e) => {
@@ -48,18 +55,26 @@ const Player = ({ onShoot }) => {
   }, [movement]);
 
   return (
-    <img
-      src="src/assets/player.png"
-      alt="Player"
+    <div
+      className="player-ship"
       style={{
         position: 'absolute',
         left: `${position.x}px`,
         bottom: '60px',
         width: `${PLAYER_SETTINGS.WIDTH}px`,
-        filter: 'brightness(1.2) contrast(1.2)',
-        transition: 'transform 0.1s'
+        height: '36px',
       }}
-    />
+    >
+      <div className="ship-wings" />
+      <div className="ship-body">
+        <div className="ship-window" />
+      </div>
+      <div className="ship-cannon" />
+      <div className="ship-engines">
+        <div className="engine-left" />
+        <div className="engine-right" />
+      </div>
+    </div>
   );
 };
 

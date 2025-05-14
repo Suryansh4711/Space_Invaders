@@ -5,21 +5,22 @@ const GRID_WIDTH = 8;
 const GRID_HEIGHT = 3;
 const ALIEN_SPACING_X = 60;
 const ALIEN_SPACING_Y = 50;
-const MOVEMENT_SPEED = 2;  // Increased for more visible effect
-const MOVEMENT_INTERVAL = 16;
-const SCREEN_PADDING = 100;  // Increased padding for better visibility
+const MOVEMENT_SPEED = 3;
+const MOVEMENT_INTERVAL = 32;
+const SCREEN_PADDING = 80;   // Adjusted padding
 const ALIEN_WIDTH = 30;
 const ALIEN_HEIGHT = 30;
 const BULLET_WIDTH = 4;
 const BULLET_HEIGHT = 12;
 
-const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets }) => {
+const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive }) => {
   const [aliens, setAliens] = useState([]);
   const [direction, setDirection] = useState(1);
   const [position, setPosition] = useState({ 
     x: window.innerWidth * 0.15, 
     y: 100 
   });
+  const [destroyedAliens, setDestroyedAliens] = useState(new Set());
 
   useEffect(() => {
     // Initialize three rows of aliens
@@ -38,25 +39,17 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets }) => {
   }, []);
 
   const checkCollision = (bullet, alien) => {
-    const alienBox = {
-      left: position.x + alien.x,
-      right: position.x + alien.x + ALIEN_WIDTH,
-      top: position.y + alien.y,
-      bottom: position.y + alien.y + ALIEN_HEIGHT
+    const alienPosition = {
+      x: position.x + alien.x,
+      y: position.y + alien.y
     };
 
-    const bulletBox = {
-      left: bullet.x,
-      right: bullet.x + BULLET_WIDTH,
-      top: bullet.y,
-      bottom: bullet.y + BULLET_HEIGHT
-    };
-
+    // More precise collision detection
     return (
-      bulletBox.left < alienBox.right &&
-      bulletBox.right > alienBox.left &&
-      bulletBox.top < alienBox.bottom &&
-      bulletBox.bottom > alienBox.top
+      bullet.x >= alienPosition.x &&
+      bullet.x <= alienPosition.x + ALIEN_WIDTH &&
+      bullet.y >= alienPosition.y &&
+      bullet.y <= alienPosition.y + ALIEN_HEIGHT
     );
   };
 
@@ -73,40 +66,37 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets }) => {
       });
     };
 
-    checkBulletCollisions();
-  }, [bullets, aliens, position]);
+    if (isGameActive) {
+      checkBulletCollisions();
+    }
+  }, [bullets, aliens, position, isGameActive]);
 
   useEffect(() => {
-    let lastTime = performance.now();
-    let animationFrameId;
-
-    const animate = (currentTime) => {
-      if (currentTime - lastTime >= MOVEMENT_INTERVAL) {
+    let moveInterval;
+    
+    if (isGameActive) {
+      moveInterval = setInterval(() => {
         setPosition(prev => {
           const gridWidth = GRID_WIDTH * ALIEN_SPACING_X;
           const newX = prev.x + (direction * MOVEMENT_SPEED);
           
-          // Check boundaries and reverse direction
           if (newX <= SCREEN_PADDING) {
-            setDirection(1); // Force right direction
+            setDirection(1);
             return { ...prev, x: SCREEN_PADDING };
           }
+          
           if (newX + gridWidth >= window.innerWidth - SCREEN_PADDING) {
-            setDirection(-1); // Force left direction
+            setDirection(-1);
             return { ...prev, x: window.innerWidth - gridWidth - SCREEN_PADDING };
           }
           
           return { ...prev, x: newX };
         });
-        lastTime = currentTime;
-      }
-      
-      animationFrameId = requestAnimationFrame(animate);
-    };
+      }, MOVEMENT_INTERVAL);
+    }
 
-    animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [direction]);
+    return () => clearInterval(moveInterval);
+  }, [direction, isGameActive]);
 
   return (
     <div className="alien-grid">
@@ -118,6 +108,7 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets }) => {
             y: position.y + alien.y
           }}
           type={alien.type}
+          isDestroyed={destroyedAliens.has(alien.id)}
         />
       ))}
     </div>

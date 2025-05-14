@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const Alien = ({ position, type, onHit }) => {
+const Alien = ({ position, type, isDestroyed, onAnimationEnd }) => {
   const [frame, setFrame] = useState(0);
-  const [isDestroyed, setIsDestroyed] = useState(false);
 
   useEffect(() => {
     const animation = setInterval(() => {
@@ -10,13 +9,6 @@ const Alien = ({ position, type, onHit }) => {
     }, 500);
     return () => clearInterval(animation);
   }, []);
-
-  useEffect(() => {
-    if (isDestroyed) {
-      const timeout = setTimeout(() => onHit?.(), 300);
-      return () => clearTimeout(timeout);
-    }
-  }, [isDestroyed]);
 
   const getAlienStyle = (type) => {
     // Base alien styles
@@ -72,7 +64,7 @@ const Alien = ({ position, type, onHit }) => {
   };
 
   return (
-    <pre
+    <div
       className={`alien alien-type-${type} ${isDestroyed ? 'destroyed' : ''}`}
       style={{
         position: 'absolute',
@@ -87,11 +79,12 @@ const Alien = ({ position, type, onHit }) => {
         transform: `scale(${frame === 0 ? 1 : 1.1})`,
         transition: 'transform 0.25s ease-in-out',
         userSelect: 'none',
-        animation: isDestroyed ? 'explode 0.3s forwards' : undefined
+        animation: isDestroyed ? 'alienDestroy 0.5s forwards' : undefined
       }}
+      onAnimationEnd={onAnimationEnd}
     >
       {getAlienStyle(type)}
-    </pre>
+    </div>
   );
 };
 
