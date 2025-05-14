@@ -9,6 +9,8 @@ function App() {
   const [bullets, setBullets] = useState([]);
   const [lastShot, setLastShot] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
 
   const handleShoot = (playerPosition) => {
     const now = Date.now();
@@ -26,6 +28,13 @@ function App() {
     setGameStarted(true);
   };
 
+  const restartGame = () => {
+    setBullets([]);
+    setLastShot(0);
+    setScore(0);
+    setLives(3);
+  };
+
   return (
     <div className="game-board">
       <Stars />
@@ -34,8 +43,11 @@ function App() {
       ) : (
         <>
           <div className="game-info">
-            <span>SCORE: 0</span>
-            <span>LIVES: 3</span>
+            <div>SCORE: {score}</div>
+            <button className="restart-button" onClick={restartGame}>
+              RESTART
+            </button>
+            <div>LIVES: {lives}</div>
           </div>
           <h1 className="title">SPACE INVADERS</h1>
           <Player onShoot={handleShoot} />

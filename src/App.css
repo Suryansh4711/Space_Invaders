@@ -25,12 +25,14 @@ body {
 
 .game-info {
   position: absolute;
-  top: 20px;
+  top: 10px;
   width: 100%;
   display: flex;
   justify-content: space-around;
+  align-items: center;
   font-size: 20px;
   z-index: 1;
+  padding: 0 20px;
 }
 
 .game-info span {
@@ -43,7 +45,7 @@ body {
   position: relative;
   z-index: 1;
   text-align: center;
-  margin-top: 40px;  /* Reduced from 60px for better spacing */
+  margin-top: 80px; /* Increased from 40px to avoid overlap */
   font-size: 36px;
   color: #0f0;
   text-shadow: 0 0 10px #0f0;
@@ -94,6 +96,26 @@ body {
   text-shadow: 0 0 5px #0f0;
   line-height: 2;
   opacity: 0.8;
+}
+
+.restart-button {
+  background: transparent;
+  border: 2px solid #0f0;
+  color: #0f0;
+  padding: 5px 15px;
+  font-size: 16px;
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 0 3px #0f0;
+  box-shadow: 0 0 5px #0f0;
+  margin: 0 20px; /* Add margin to prevent crowding */
+}
+
+.restart-button:hover {
+  background: #0f0;
+  color: #000;
+  transform: scale(1.05);
 }
 
 @keyframes flash {
