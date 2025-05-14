@@ -1,67 +1,53 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Player from './components/Player';
+import Bullet from './components/Bullet';
+import Stars from './components/Stars';
+import StartScreen from './components/StartScreen';
 import './App.css';
 
 function App() {
-  const [playerX, setPlayerX] = useState(window.innerWidth / 2 - 25);
   const [bullets, setBullets] = useState([]);
+  const [lastShot, setLastShot] = useState(0);
+  const [gameStarted, setGameStarted] = useState(false);
 
-  useEffect(() => {
-    function handleKeyDown(event) {
-      const speed = 10;
+  const handleShoot = (playerPosition) => {
+    const now = Date.now();
+    if (now - lastShot < 250) return;
 
-      if (event.key === "ArrowLeft") {
-        setPlayerX(prevX => Math.max(prevX - speed, 0));
-      }
-      if (event.key === "ArrowRight") {
-        setPlayerX(prevX => Math.min(prevX + speed, window.innerWidth - 50));
-      }
-      if (event.key === " ") { // Spacebar to shoot
-        shootBullet();
-      }
-    }
+    setBullets(prev => [...prev, {
+      id: now,
+      x: playerPosition.x + 23.5,
+      y: playerPosition.y
+    }]);
+    setLastShot(now);
+  };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  function shootBullet() {
-    setBullets(prevBullets => [
-      ...prevBullets,
-      { x: playerX + 48 - 2.5, y: window.innerHeight - 96 } // 96 is spaceship height
-    ]);
-  }
-  
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBullets(prevBullets => 
-        prevBullets
-          .map(bullet => ({ ...bullet, y: bullet.y - 10 })) // Move up
-          .filter(bullet => bullet.y > 0) // Remove bullets that go off screen
-      );
-    }, 50); // Move bullets every 50ms
-
-    return () => clearInterval(interval);
-  }, []);
+  const startGame = () => {
+    setGameStarted(true);
+  };
 
   return (
     <div className="game-board">
-      <h1 className="title">Space Invaders</h1>
-      <img 
-        src="src/assets/player.png" 
-        alt="Player" 
-        className="player"
-        style={{ left: `${playerX}px` }}
-      />
-      {bullets.map((bullet, index) => (
-        <div 
-          key={index} 
-          className="bullet"
-          style={{ left: `${bullet.x}px`, top: `${bullet.y}px` }}
-        />
-      ))}
+      <Stars />
+      {!gameStarted ? (
+        <StartScreen onStart={startGame} />
+      ) : (
+        <>
+          <div className="game-info">
+            <span>SCORE: 0</span>
+            <span>LIVES: 3</span>
+          </div>
+          <h1 className="title">SPACE INVADERS</h1>
+          <Player onShoot={handleShoot} />
+          {bullets.map(bullet => (
+            <Bullet
+              key={bullet.id}
+              initialPosition={bullet}
+              onDestroy={() => setBullets(prev => prev.filter(b => b.id !== bullet.id))}
+            />
+          ))}
+        </>
+      )}
     </div>
   );
 }
