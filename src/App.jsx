@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Player from './components/Player';
 import Bullet from './components/Bullet';
 import Stars from './components/Stars';
 import StartScreen from './components/StartScreen';
+import Lives from './components/Lives';
+import Score from './components/Score';
+import AlienGrid from './components/AlienGrid';
 import './App.css';
 
 function App() {
@@ -11,6 +14,16 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  const [highScore, setHighScore] = useState(
+    parseInt(localStorage.getItem('highScore')) || 0
+  );
+
+  useEffect(() => {
+    if (score > highScore) {
+      setHighScore(score);
+      localStorage.setItem('highScore', score.toString());
+    }
+  }, [score, highScore]);
 
   const handleShoot = (playerPosition) => {
     const now = Date.now();
@@ -19,9 +32,21 @@ function App() {
     setBullets(prev => [...prev, {
       id: now,
       x: playerPosition.x + 23.5,
-      y: playerPosition.y
+      y: playerPosition.y,
+      width: 3,
+      height: 12
     }]);
     setLastShot(now);
+  };
+
+  const handleAlienDestroyed = (alien) => {
+    // Score based on alien type
+    const pointValues = {
+      1: 30,
+      2: 20,
+      3: 10
+    };
+    setScore(prev => prev + pointValues[alien.type]);
   };
 
   const startGame = () => {
@@ -36,31 +61,40 @@ function App() {
   };
 
   return (
-    <div className="game-board">
-      <Stars />
-      {!gameStarted ? (
-        <StartScreen onStart={startGame} />
-      ) : (
-        <>
-          <div className="game-info">
-            <div>SCORE: {score}</div>
-            <button className="restart-button" onClick={restartGame}>
-              RESTART
-            </button>
-            <div>LIVES: {lives}</div>
-          </div>
-          <h1 className="title">SPACE INVADERS</h1>
-          <Player onShoot={handleShoot} />
-          {bullets.map(bullet => (
-            <Bullet
-              key={bullet.id}
-              initialPosition={bullet}
-              onDestroy={() => setBullets(prev => prev.filter(b => b.id !== bullet.id))}
+    <>
+      <div className="game-board">
+        <Stars />
+        {!gameStarted ? (
+          <StartScreen onStart={startGame} highScore={highScore} />
+        ) : (
+          <>
+            <div className="game-info">
+              <Score score={score} />
+              <button className="restart-button" onClick={restartGame}>
+                RESTART
+              </button>
+              <Lives lives={lives} />
+            </div>
+            <AlienGrid 
+              bullets={bullets}
+              onAlienDestroyed={handleAlienDestroyed}
+              onUpdateBullets={(bulletId) => setBullets(prev => 
+                prev.filter(b => b.id !== bulletId)
+              )}
             />
-          ))}
-        </>
-      )}
-    </div>
+            <Player onShoot={handleShoot} />
+            {bullets.map(bullet => (
+              <Bullet
+                key={bullet.id}
+                initialPosition={bullet}
+                onDestroy={() => setBullets(prev => prev.filter(b => b.id !== bullet.id))}
+              />
+            ))}
+          </>
+        )}
+      </div>
+      <div className="crt-effect" />
+    </>
   );
 }
 

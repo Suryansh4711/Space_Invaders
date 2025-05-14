@@ -1,9 +1,12 @@
 import React from 'react';
 
-const StartScreen = ({ onStart }) => {
+const StartScreen = ({ onStart, highScore }) => {
   return (
     <div className="start-screen">
       <h1 className="game-title">SPACE INVADERS</h1>
+      <div className="high-score">
+        HIGH SCORE: {highScore.toString().padStart(6, '0')}
+      </div>
       <button className="start-button" onClick={onStart}>
         PRESS START
       </button>

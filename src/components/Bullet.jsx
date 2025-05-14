@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 
-const BULLET_SPEED = 7;
-const BULLET_UPDATE_INTERVAL = 16; // 60fps
+const BULLET_SPEED = 8;
 
 const Bullet = ({ initialPosition, onDestroy }) => {
   const [position, setPosition] = useState(initialPosition);
 
   useEffect(() => {
-    const moveInterval = setInterval(() => {
+    let animationId;
+    
+    const animate = () => {
       setPosition(prev => {
         const newY = prev.y - BULLET_SPEED;
         if (newY < 0) {
@@ -16,22 +17,25 @@ const Bullet = ({ initialPosition, onDestroy }) => {
         }
         return { ...prev, y: newY };
       });
-    }, BULLET_UPDATE_INTERVAL);
+      animationId = requestAnimationFrame(animate);
+    };
 
-    return () => clearInterval(moveInterval);
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
   }, [onDestroy]);
 
   return (
     <div
+      className="bullet"
       style={{
         position: 'absolute',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: '3px',
+        width: '4px',
         height: '12px',
-        backgroundColor: '#0f0',
-        boxShadow: '0 0 5px #0f0',
-        borderRadius: '1px',
+        backgroundColor: '#fff',
+        boxShadow: '0 0 4px #fff, 0 0 8px #0f0',
+        transform: 'translateZ(0)',
       }}
     />
   );
