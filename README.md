@@ -1,12 +1,89 @@
-# React + Vite
+# Space Invaders Clone 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, React-based implementation of the classic Space Invaders arcade game, featuring smooth animations and responsive design.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎮 Features
 
-## Expanding the ESLint configuration
+- **Classic Gameplay** with modern graphics and effects
+- **Responsive Design** that adapts to different screen sizes
+- **Advanced Scoring System** with persistent high scores
+- **Dynamic Alien AI** with intelligent respawn mechanics
+- **Retro CRT Effects** for authentic arcade feel
+- **Performance Optimized** using React's latest features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🕹️ Controls
+
+| Key           | Action        |
+|---------------|---------------|
+| Left Arrow    | Move Left     |
+| Right Arrow   | Move Right    |
+| Space         | Shoot         |
+| P             | Pause Game    |
+| ESC           | Menu         |
+
+## 🏆 Scoring System
+
+| Alien Type    | Points        |
+|---------------|---------------|
+| Top Row       | 300          |
+| Middle Row    | 200          |
+| Bottom Row    | 100          |
+| UFO           | 500          |
+
+## 🚀 Quick Start
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Suryansh4711/Space_Invaders.git
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start development server:
+```bash
+npm run dev
+```
+
+## 🛠️ Tech Stack
+
+- React 18
+- Vite
+- Modern JavaScript (ES6+)
+- CSS3 Animations
+- HTML5 Canvas
+
+## 🔧 Development
+
+### Prerequisites
+- Node.js 16+
+- npm 8+
+
+### Project Structure
+```
+src/
+├── components/    # React components
+├── hooks/        # Custom React hooks
+├── assets/       # Game assets
+└── styles/       # CSS modules
+```
+
+## 📈 Future Improvements
+
+- [ ] Multiplayer support
+- [ ] Mobile touch controls
+- [ ] Additional power-ups
+- [ ] Level progression
+- [ ] Sound effects
+
+## 📝 License
+
+MIT License - see LICENSE.md
+
+## 🤝 Credits
+
+Created with ❤️ by Suryansh Agarwal  
+Based on the original Space Invaders by Taito Corporation (1978)
