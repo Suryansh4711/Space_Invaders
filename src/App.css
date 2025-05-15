@@ -480,3 +480,30 @@ body {
 .game-over-dialog .stats p {
   margin: 10px 0;
 }
+
+.pause-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  color: #0f0;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.pause-overlay h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #0f0;
+}
+
+.pause-overlay p {
+  font-size: 18px;
+  text-shadow: 0 0 5px #0f0;
+}

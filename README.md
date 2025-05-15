@@ -20,7 +20,6 @@ A modern, React-based implementation of the classic Space Invaders arcade game, 
 | Right Arrow   | Move Right    |
 | Space         | Shoot         |
 | P             | Pause Game    |
-| ESC           | Menu         |
 
 ## 🏆 Scoring System
 

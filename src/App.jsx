@@ -31,6 +31,7 @@ function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameActive, setIsGameActive] = useState(false);
   const [aliens, setAliens] = useState([]); // Add aliens state
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     if (score > highScore) {
@@ -41,7 +42,7 @@ function App() {
 
   useEffect(() => {
     let timer;
-    if (gameStarted && !isGameOver && timeLeft > 0) {
+    if (gameStarted && !isGameOver && timeLeft > 0 && !isPaused) {
       setIsGameActive(true);
       timer = setInterval(() => {
         setTimeLeft(prev => {
@@ -55,7 +56,19 @@ function App() {
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [gameStarted, isGameOver, timeLeft]);
+  }, [gameStarted, isGameOver, timeLeft, isPaused]);
+
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key.toLowerCase() === 'p' && gameStarted && !isGameOver) {
+        setIsPaused(prev => !prev);
+        setIsGameActive(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [gameStarted, isGameOver]);
 
   const handleShoot = useCallback((playerPosition) => {
     if (!isGameActive) return;
@@ -146,6 +159,12 @@ function App() {
                 aliens={aliens}
               />
             ))}
+            {isPaused && (
+              <div className="pause-overlay">
+                <h2>GAME PAUSED</h2>
+                <p>Press P to Resume</p>
+              </div>
+            )}
             {isGameOver && (
               <GameOver 
                 score={score}
