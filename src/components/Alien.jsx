@@ -81,7 +81,11 @@ const Alien = ({ position, type, isDestroyed, onAnimationEnd }) => {
         userSelect: 'none',
         animation: isDestroyed ? 'alienDestroy 0.5s forwards' : undefined
       }}
-      onAnimationEnd={onAnimationEnd}
+      onAnimationEnd={() => {
+        if (isDestroyed) {
+          onAnimationEnd?.();
+        }
+      }}
     >
       {getAlienStyle(type)}
     </div>

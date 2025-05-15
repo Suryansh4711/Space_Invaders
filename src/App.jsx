@@ -103,7 +103,10 @@ function App() {
   const handleRestart = () => {
     setTimeLeft(60);
     setIsGameOver(false);
-    setIsGameActive(true);
+    setIsGameActive(false); // Reset game state
+    setTimeout(() => {     // Small delay to ensure clean reset
+      setIsGameActive(true);
+    }, 100);
     restartGame();
   };
 

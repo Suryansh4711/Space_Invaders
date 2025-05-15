@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 const BULLET_SPEED = 8;
+const BULLET_WIDTH = 4;
+const BULLET_HEIGHT = 12;
+const ALIEN_WIDTH = 30;  // Match actual alien size
+const ALIEN_HEIGHT = 30; // Match actual alien size
 
 const Bullet = ({ initialPosition, onDestroy, aliens }) => {
   const positionRef = useRef(initialPosition);
@@ -17,25 +21,20 @@ const Bullet = ({ initialPosition, onDestroy, aliens }) => {
       }
 
       if (aliens?.length > 0) {
+        const bulletCenter = {
+          x: positionRef.current.x,
+          y: newY + (BULLET_HEIGHT / 2)
+        };
+
         const hitAlien = aliens.find(alien => {
-          const bulletRect = {
-            x: positionRef.current.x - 2,
-            y: newY,
-            width: 4,
-            height: 12
-          };
-          
-          const alienRect = {
-            x: alien.position.x,
-            y: alien.position.y,
-            width: 40,
-            height: 40
+          const alienCenter = {
+            x: alien.position.x + (ALIEN_WIDTH / 2),
+            y: alien.position.y + (ALIEN_HEIGHT / 2)
           };
 
-          return bulletRect.x < alienRect.x + alienRect.width &&
-                 bulletRect.x + bulletRect.width > alienRect.x &&
-                 bulletRect.y < alienRect.y + alienRect.height &&
-                 bulletRect.y + bulletRect.height > alienRect.y;
+          // More precise collision detection using center points and half-sizes
+          return Math.abs(bulletCenter.x - alienCenter.x) < (ALIEN_WIDTH / 2 + BULLET_WIDTH / 2) &&
+                 Math.abs(bulletCenter.y - alienCenter.y) < (ALIEN_HEIGHT / 2 + BULLET_HEIGHT / 2);
         });
 
         if (hitAlien) {
@@ -68,8 +67,8 @@ const Bullet = ({ initialPosition, onDestroy, aliens }) => {
         position: 'absolute',
         left: `${positionRef.current.x}px`,
         top: `${positionRef.current.y}px`,
-        width: '4px',
-        height: '12px',
+        width: `${BULLET_WIDTH}px`,
+        height: `${BULLET_HEIGHT}px`,
         backgroundColor: '#fff',
         boxShadow: '0 0 4px #fff, 0 0 8px #0f0',
         zIndex: 1000,

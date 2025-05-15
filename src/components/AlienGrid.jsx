@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Alien from './Alien';
 
 const GRID_WIDTH = 8;
@@ -12,6 +12,7 @@ const ALIEN_WIDTH = 30;
 const ALIEN_HEIGHT = 30;
 const BULLET_WIDTH = 4;
 const BULLET_HEIGHT = 12;
+const RESPAWN_DELAY = 3000; // 3 seconds
 
 const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive }) => {
   const [aliens, setAliens] = useState([]);
@@ -22,8 +23,7 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
   });
   const [destroyedAliens, setDestroyedAliens] = useState(new Set());
 
-  useEffect(() => {
-    // Initialize three rows of aliens
+  const initializeAliens = () => {
     const initialAliens = [];
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
@@ -35,8 +35,15 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
         });
       }
     }
-    setAliens(initialAliens);
-  }, []);
+    return initialAliens;
+  };
+
+  useEffect(() => {
+    setAliens(initializeAliens());
+    setPosition({ x: window.innerWidth * 0.15, y: 100 });
+    setDirection(1);
+    setDestroyedAliens(new Set());
+  }, [isGameActive]);
 
   const checkCollision = (bullet, alien) => {
     const bulletCenter = {
@@ -58,14 +65,36 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
     );
   };
 
+  const respawnAlien = useCallback((destroyedAlien) => {
+    setTimeout(() => {
+      if (isGameActive) {
+        setAliens(prev => [...prev, {
+          ...destroyedAlien,
+          id: `alien-${Date.now()}`, // New unique ID
+          type: Math.ceil(Math.random() * GRID_HEIGHT) // Random type
+        }]);
+      }
+    }, RESPAWN_DELAY);
+  }, [isGameActive]);
+
+  const handleAlienDestroyed = (alien) => {
+    setDestroyedAliens(prev => new Set([...prev, alien.id]));
+    
+    // Remove alien after animation
+    setTimeout(() => {
+      setAliens(prev => prev.filter(a => a.id !== alien.id));
+      onAlienDestroyed?.(alien);
+      respawnAlien(alien);
+    }, 300); // Match animation duration
+  };
+
   useEffect(() => {
     const checkBulletCollisions = () => {
       bullets.forEach(bullet => {
         aliens.forEach(alien => {
           if (checkCollision(bullet, alien)) {
-            onAlienDestroyed?.(alien);
+            handleAlienDestroyed(alien);
             onUpdateBullets(bullet.id);
-            setAliens(prev => prev.filter(a => a.id !== alien.id));
           }
         });
       });
@@ -74,7 +103,7 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
     if (isGameActive) {
       checkBulletCollisions();
     }
-  }, [bullets, aliens, position, isGameActive]);
+  }, [bullets, aliens, position, isGameActive, respawnAlien]);
 
   useEffect(() => {
     let moveInterval;
@@ -114,6 +143,7 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
           }}
           type={alien.type}
           isDestroyed={destroyedAliens.has(alien.id)}
+          onAnimationEnd={() => destroyedAliens.delete(alien.id)}
         />
       ))}
     </div>
