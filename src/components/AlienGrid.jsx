@@ -12,7 +12,12 @@ const ALIEN_WIDTH = 30;
 const ALIEN_HEIGHT = 30;
 const BULLET_WIDTH = 4;
 const BULLET_HEIGHT = 12;
-const RESPAWN_DELAY = 3000; // 3 seconds
+const RESPAWN_DELAY = 2000; // 2 seconds delay for respawn
+
+const MOVEMENT = {
+  MIN_RESPAWN_DELAY: 1500,
+  MAX_RESPAWN_DELAY: 3000
+};
 
 const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive }) => {
   const [aliens, setAliens] = useState([]);
@@ -38,11 +43,18 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
     return initialAliens;
   };
 
+  // Reset everything when game starts
   useEffect(() => {
-    setAliens(initializeAliens());
-    setPosition({ x: window.innerWidth * 0.15, y: 100 });
-    setDirection(1);
-    setDestroyedAliens(new Set());
+    if (isGameActive) {
+      const initialAliens = initializeAliens();
+      setAliens(initialAliens);
+      setPosition({ x: window.innerWidth * 0.15, y: 100 });
+      setDirection(1);
+      setDestroyedAliens(new Set());
+    } else {
+      // Clear aliens when game is not active
+      setAliens([]);
+    }
   }, [isGameActive]);
 
   const checkCollision = (bullet, alien) => {
@@ -66,25 +78,48 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
   };
 
   const respawnAlien = useCallback((destroyedAlien) => {
+    const delay = MOVEMENT.MIN_RESPAWN_DELAY + 
+      Math.random() * (MOVEMENT.MAX_RESPAWN_DELAY - MOVEMENT.MIN_RESPAWN_DELAY);
+
     setTimeout(() => {
-      if (isGameActive) {
-        setAliens(prev => [...prev, {
-          ...destroyedAlien,
-          id: `alien-${Date.now()}`, // New unique ID
-          type: Math.ceil(Math.random() * GRID_HEIGHT) // Random type
-        }]);
+      if (isGameActive && aliens.length < GRID_WIDTH * GRID_HEIGHT) {
+        // Create grid position map
+        const positionMap = new Set(
+          aliens.map(a => `${Math.floor(a.x / ALIEN_SPACING_X)},${Math.floor(a.y / ALIEN_SPACING_Y)}`)
+        );
+
+        // Find available positions
+        const availablePositions = [];
+        for (let row = 0; row < GRID_HEIGHT; row++) {
+          for (let col = 0; col < GRID_WIDTH; col++) {
+            if (!positionMap.has(`${col},${row}`)) {
+              availablePositions.push({ row, col });
+            }
+          }
+        }
+
+        if (availablePositions.length > 0) {
+          // Pick random available position
+          const pos = availablePositions[Math.floor(Math.random() * availablePositions.length)];
+          
+          setAliens(prev => [...prev, {
+            id: `alien-${Date.now()}-${Math.random()}`,
+            x: pos.col * ALIEN_SPACING_X,
+            y: pos.row * ALIEN_SPACING_Y,
+            type: Math.ceil(Math.random() * GRID_HEIGHT)
+          }]);
+        }
       }
-    }, RESPAWN_DELAY);
-  }, [isGameActive]);
+    }, delay);
+  }, [isGameActive, aliens.length]);
 
   const handleAlienDestroyed = (alien) => {
     setDestroyedAliens(prev => new Set([...prev, alien.id]));
     
-    // Remove alien after animation
     setTimeout(() => {
       setAliens(prev => prev.filter(a => a.id !== alien.id));
       onAlienDestroyed?.(alien);
-      respawnAlien(alien);
+      respawnAlien(alien);  // Re-enable respawn call
     }, 300); // Match animation duration
   };
 
@@ -103,7 +138,7 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
     if (isGameActive) {
       checkBulletCollisions();
     }
-  }, [bullets, aliens, position, isGameActive, respawnAlien]);
+  }, [bullets, aliens, position, isGameActive]);
 
   useEffect(() => {
     let moveInterval;
