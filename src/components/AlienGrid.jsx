@@ -39,17 +39,22 @@ const AlienGrid = ({ bullets, onAlienDestroyed, onUpdateBullets, isGameActive })
   }, []);
 
   const checkCollision = (bullet, alien) => {
+    const bulletCenter = {
+      x: bullet.x,
+      y: bullet.y
+    };
+
     const alienPosition = {
       x: position.x + alien.x,
       y: position.y + alien.y
     };
 
-    // More precise collision detection
+    // Adjusted collision detection with proper hitbox
     return (
-      bullet.x >= alienPosition.x &&
-      bullet.x <= alienPosition.x + ALIEN_WIDTH &&
-      bullet.y >= alienPosition.y &&
-      bullet.y <= alienPosition.y + ALIEN_HEIGHT
+      bulletCenter.x >= alienPosition.x &&
+      bulletCenter.x <= alienPosition.x + ALIEN_WIDTH &&
+      bulletCenter.y >= alienPosition.y &&
+      bulletCenter.y <= alienPosition.y + ALIEN_HEIGHT
     );
   };
 

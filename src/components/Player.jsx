@@ -20,8 +20,8 @@ const Player = ({ onShoot }) => {
       if (e.key === 'ArrowRight') setMovement(prev => ({ ...prev, right: true }));
       if (e.code === 'Space') {
         const bulletSpawnPos = {
-          x: position.x + (PLAYER_SETTINGS.WIDTH / 2) - 2, // Center bullet
-          y: window.innerHeight - 200 // Adjust spawn height
+              x: position.x + PLAYER_SETTINGS.WIDTH / 2, // Center of ship
+          y: position.y // Current ship position
         };
         onShoot(bulletSpawnPos);
       }

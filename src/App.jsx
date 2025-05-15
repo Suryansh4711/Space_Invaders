@@ -30,6 +30,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameActive, setIsGameActive] = useState(false);
+  const [aliens, setAliens] = useState([]); // Add aliens state
 
   useEffect(() => {
     if (score > highScore) {
@@ -61,10 +62,11 @@ function App() {
     const now = Date.now();
     if (now - lastShot < BULLET_SETTINGS.COOLDOWN) return;
 
+    const bulletId = now;
     setBullets(prev => [...prev, {
-      id: now,
-      x: playerPosition.x + 23,
-      y: playerPosition.y
+      id: bulletId,
+      x: playerPosition.x,
+      y: playerPosition.y - 30 // Adjust starting position
     }]);
     setLastShot(now);
   }, [isGameActive, lastShot]);
@@ -77,6 +79,12 @@ function App() {
     };
     setScore(prev => prev + pointValues[alien.type]);
   };
+
+  const handleAlienHit = useCallback((alien, bulletId) => {
+    setAliens(prev => prev.filter(a => a.id !== alien.id));
+    setBullets(prev => prev.filter(b => b.id !== bulletId));
+    handleAlienDestroyed(alien);
+  }, []);
 
   const startGame = () => {
     setBullets([]);
@@ -119,6 +127,7 @@ function App() {
                 prev.filter(b => b.id !== bulletId)
               )}
               isGameActive={isGameActive}
+              setAliens={setAliens} // Pass setAliens to AlienGrid
             />
             {isGameActive && <Player onShoot={handleShoot} />}
             {bullets.map(bullet => (
@@ -126,11 +135,12 @@ function App() {
                 key={bullet.id}
                 initialPosition={bullet}
                 onDestroy={() => {
-                  // Use requestAnimationFrame for smooth bullet removal
                   requestAnimationFrame(() => {
                     setBullets(prev => prev.filter(b => b.id !== bullet.id));
                   });
                 }}
+                onHit={(alien) => handleAlienHit(alien, bullet.id)}
+                aliens={aliens}
               />
             ))}
             {isGameOver && (
